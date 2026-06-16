@@ -124,6 +124,13 @@ const PickDateTime = ({ onNext, selectedStation, selectedDateTime }) => {
   const timeSlots = useMemo(() => {
     const slots = [];
 
+    // Determine if selected date is today
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    const isToday = selectedDate === todayStr;
+    const nowH = now.getHours();
+    const nowM = now.getMinutes();
+
     // Convert booking ranges into blocked times
     const blockedTimes = new Map();
 
@@ -165,10 +172,11 @@ const PickDateTime = ({ onNext, selectedStation, selectedDateTime }) => {
           `${String(m).padStart(2, "0")} ${ampm}`;
 
         const names = blockedTimes.get(displayTime) || [];
+        const isPast = isToday && (h < nowH || (h === nowH && m <= nowM));
 
         slots.push({
           time: displayTime,
-          status: names.length > 0 ? "Booked" : "Available",
+          status: names.length > 0 ? "Booked" : isPast ? "Past" : "Available",
           bookedNames: names,
         });
       }
@@ -213,6 +221,26 @@ const PickDateTime = ({ onNext, selectedStation, selectedDateTime }) => {
     if (status === "Available") {
       setSelectedTime(time);
     }
+  };
+
+  const slotBgColor = (slot) => {
+    if (slot.status === "Booked") return "rgba(169, 5, 188, 0.3)";
+    if (slot.status === "Past") return "rgba(255,255,255,0.04)";
+    if (selectedTime === slot.time) return "rgba(51, 178, 247, 0.3)";
+    return "rgba(255,255,255,0.05)";
+  };
+
+  const slotBorder = (slot) => {
+    if (selectedTime === slot.time) return "2px solid #33B2F7";
+    if (slot.status === "Booked") return "1px solid rgba(169, 5, 188, 0.5)";
+    if (slot.status === "Past") return "1px solid rgba(255,255,255,0.05)";
+    return "1px solid rgba(255,255,255,0.1)";
+  };
+
+  const slotStatusColor = (status) => {
+    if (status === "Booked") return "#A905BC";
+    if (status === "Past") return "rgba(255,255,255,0.25)";
+    return "#33B2F7";
   };
 
   useEffect(() => {
@@ -419,27 +447,14 @@ const PickDateTime = ({ onNext, selectedStation, selectedDateTime }) => {
               py: { xs: 0.8, sm: 0.8, md: 1.2 },
               px: { xs: 0.3, sm: 0.3, md: 0.8 },
               minWidth: { xs: "55px", sm: "55px", md: "auto" },
-              bgcolor:
-                slot.status === "Booked"
-                  ? "rgba(169, 5, 188, 0.3)"
-                  : selectedTime === slot.time
-                    ? "rgba(51, 178, 247, 0.3)"
-                    : "rgba(255,255,255,0.05)",
-              border:
-                selectedTime === slot.time
-                  ? "2px solid #33B2F7"
-                  : slot.status === "Booked"
-                    ? "1px solid rgba(169, 5, 188, 0.5)"
-                    : "1px solid rgba(255,255,255,0.1)",
+              bgcolor: slotBgColor(slot),
+              border: slotBorder(slot),
               borderRadius: "6px",
               cursor: slot.status === "Available" ? "pointer" : "not-allowed",
-              opacity: slot.status === "Booked" ? 0.8 : 1,
+              opacity: slot.status === "Past" ? 0.4 : slot.status === "Booked" ? 0.8 : 1,
               transition: "all 0.3s ease",
               "&:hover": {
-                bgcolor:
-                  slot.status === "Available"
-                    ? "rgba(51, 178, 247, 0.2)"
-                    : undefined,
+                bgcolor: slot.status === "Available" ? "rgba(51, 178, 247, 0.2)" : undefined,
               },
             }}
           >
@@ -448,6 +463,7 @@ const PickDateTime = ({ onNext, selectedStation, selectedDateTime }) => {
                 fontSize: { xs: "10px", sm: "10px", md: "14px" },
                 fontWeight: "bold",
                 mb: 0.3,
+                color: slot.status === "Past" ? "rgba(255,255,255,0.35)" : "white",
               }}
             >
               {slot.time}
@@ -468,7 +484,7 @@ const PickDateTime = ({ onNext, selectedStation, selectedDateTime }) => {
             <Typography
               sx={{
                 fontSize: { xs: "8px", sm: "8px", md: "10px" },
-                color: slot.status === "Booked" ? "#A905BC" : "#33B2F7",
+                color: slotStatusColor(slot.status),
                 fontWeight: 500,
               }}
             >
