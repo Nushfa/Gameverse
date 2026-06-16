@@ -177,8 +177,11 @@ const PickDateTime = ({ onNext, selectedStation, selectedDateTime }) => {
     return slots;
   }, [bookedCounts, selectedDate]);
 
+  const isAfter11PM = new Date().getHours() >= 23;
+  const maxDurationMinutes = isAfter11PM ? 120 : 240;
+
   const durations = [];
-  for (let min = 30; min <= 240; min += 30) {
+  for (let min = 30; min <= maxDurationMinutes; min += 30) {
     let label = "";
     let value = "";
 

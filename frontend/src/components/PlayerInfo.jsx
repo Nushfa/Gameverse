@@ -151,6 +151,7 @@ const PlayerInfo = ({
   onPlayerInfoChange,
   amount,
   onBookingSubmit,
+  stationType,
 }) => {
   const [formData, setFormData] = useState({
     players: 1,
@@ -306,9 +307,24 @@ const PlayerInfo = ({
     const selectedDuration =
       Number(selectedDateTime?.durationMinutes || selectedDateTime?.duration) ||
       0;
-    if (!price30 || !price60 || !selectedDuration) {
+
+    if (!selectedDuration || (!price30 && !price60)) {
       return formData.playerDetails.map((p) => ({ ...p, amount: 0 }));
     }
+
+    // Derive missing tier from whichever exists
+    const rate60Normal = price60
+      ? parseFloat(price60.price || 0)
+      : parseFloat(price30.price || 0) * 2;
+    const rate60VR = price60
+      ? parseFloat(price60.vrPrice || price60.price || 0)
+      : parseFloat(price30.vrPrice || price30.price || 0) * 2;
+    const rate30Normal = price30
+      ? parseFloat(price30.price || 0)
+      : parseFloat(price60.price || 0) / 2;
+    const rate30VR = price30
+      ? parseFloat(price30.vrPrice || price30.price || 0)
+      : parseFloat(price60.vrPrice || price60.price || 0) / 2;
 
     return formData.playerDetails.map((player) => {
       const isVR = player.vrPlay === "yes";
@@ -316,19 +332,11 @@ const PlayerInfo = ({
       const remainingMinutes = selectedDuration % 60;
 
       let playerAmount = 0;
-
       if (hours > 0) {
-        const baseHour = isVR
-          ? parseFloat(price60.vrPrice || 0)
-          : parseFloat(price60.price || 0);
-        playerAmount += hours * baseHour;
+        playerAmount += hours * (isVR ? rate60VR : rate60Normal);
       }
-
       if (remainingMinutes === 30) {
-        const base30 = isVR
-          ? parseFloat(price30.vrPrice || 0)
-          : parseFloat(price30.price || 0);
-        playerAmount += base30;
+        playerAmount += isVR ? rate30VR : rate30Normal;
       }
 
       return { ...player, amount: playerAmount };
@@ -340,30 +348,108 @@ const PlayerInfo = ({
 
     receiptData.playerDetails.forEach((player, index) => {
       const doc = new jsPDF();
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+      const margin = 20;
 
-      doc.setFontSize(18);
-      doc.text("Gaming Session Receipt", 20, 20);
+      // Dark background
+      doc.setFillColor(11, 15, 25);
+      doc.rect(0, 0, pageW, pageH, "F");
 
-      doc.setFontSize(12);
-      doc.text(`Order ID: ${receiptData.orderId || "N/A"}`, 20, 35);
-      doc.text(`Date: ${receiptData.date}`, 20, 45);
-      doc.text(`Station: ${receiptData.station?.name}`, 20, 55);
+      // Header
+      doc.setFontSize(24);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(255, 255, 255);
+      doc.text("GAMEVERSE", pageW / 2, 24, { align: "center" });
 
-      doc.line(20, 60, 190, 60);
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(160, 160, 160);
+      doc.text("Gaming Session Receipt", pageW / 2, 33, { align: "center" });
+      doc.text(`Order ID: ${receiptData.orderId || "N/A"}`, pageW / 2, 41, { align: "center" });
 
-      doc.text(`Player Name: ${player.firstName} ${player.lastName}`, 20, 75);
-      doc.text(`Email: ${player.email}`, 20, 85);
-      doc.text(`Contact: ${player.contactNumber}`, 20, 95);
-      doc.text(`VR Play: ${player.vrPlay}`, 20, 105);
+      doc.setDrawColor(50, 55, 70);
+      doc.line(margin, 47, pageW - margin, 47);
 
-      doc.line(20, 110, 190, 110);
-
-      doc.setFontSize(14);
-      doc.text(`Amount Paid: LKR ${player.amount}`, 20, 125);
-
-      doc.save(
-        `Receipt_${player.firstName}_${receiptData.orderId || index + 1}.pdf`,
+      // Build rows
+      const rows = [
+        ["Player Name", `${player.firstName} ${player.lastName}`],
+        ["Phone Number", player.contactNumber || "N/A"],
+        ["Station", receiptData.station?.name || "N/A"],
+        ["Station Type", receiptData.station?.type || "-"],
+      ];
+      if (player.vrPlay) {
+        rows.push(["VR Play", player.vrPlay === "yes" ? "Yes" : "No"]);
+      }
+      rows.push(
+        ["Date", receiptData.date || "N/A"],
+        ["Start Time", receiptData.startTime || "N/A"],
+        ["Duration", receiptData.duration || "N/A"],
       );
+
+      // Card
+      const cardX = margin;
+      const cardW = pageW - margin * 2;
+      const rowH = 13;
+      const cardH = 16 + rowH + rows.length * rowH + 8 + 34;
+      const cardY = 55;
+
+      doc.setFillColor(20, 26, 42);
+      doc.rect(cardX, cardY, cardW, cardH, "F");
+      doc.setDrawColor(50, 55, 70);
+      doc.rect(cardX, cardY, cardW, cardH, "D");
+
+      // Player heading
+      let y = cardY + 14;
+      doc.setFontSize(13);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(255, 255, 255);
+      doc.text(`Player ${index + 1}`, cardX + 8, y);
+      y += rowH + 2;
+
+      // Detail rows
+      rows.forEach(([label, value]) => {
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(160, 160, 160);
+        doc.text(label, cardX + 8, y);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(255, 255, 255);
+        doc.text(String(value), pageW - margin - 8, y, { align: "right" });
+        y += rowH;
+      });
+
+      // Divider
+      y += 4;
+      doc.setDrawColor(50, 55, 70);
+      doc.line(cardX + 8, y, pageW - margin - 8, y);
+      y += 12;
+
+      // Payment
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(255, 255, 255);
+      doc.text("Payment :", cardX + 8, y);
+      doc.setTextColor(169, 5, 188);
+      doc.text(
+        `LKR ${player.amount?.toFixed(2) || "0.00"}`,
+        pageW - margin - 8,
+        y,
+        { align: "right" },
+      );
+
+      // Footer
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(80, 85, 100);
+      doc.text(
+        "Thank you for choosing Gameverse!",
+        pageW / 2,
+        pageH - 15,
+        { align: "center" },
+      );
+
+      doc.save(`Receipt_${player.firstName}_${receiptData.orderId || index + 1}.pdf`);
     });
     navigate("/");
   };
@@ -390,58 +476,60 @@ const PlayerInfo = ({
       </Typography>
 
       <Box sx={{ maxWidth: "1200px", mx: "auto" }}>
-        <Box sx={{ mb: 4 }}>
-          <Typography
-            sx={{
-              mb: 1,
-              fontSize: { xs: "11px", sm: "14px" },
-              color: "gray.400",
-            }}
-          >
-            Number of Players
-          </Typography>
-          <FormControl fullWidth>
-            <Select
-              name="players"
-              value={formData.players}
-              onChange={handlePlayersChange}
-              displayEmpty
+        {!["Pool", "Simulator"].includes(stationType) && (
+          <Box sx={{ mb: 4 }}>
+            <Typography
               sx={{
-                ...mainInputStyle,
-                "& .MuiSelect-select": {
-                  color: "white",
-                  padding: { xs: "10px 12px", sm: "14px" },
-                  fontSize: { xs: "12px", sm: "14px" },
-                },
-                "& .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "rgba(255,255,255,0.1)",
-                },
-                "&:hover .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "rgba(51, 178, 247, 0.5)",
-                },
-                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "#33B2F7",
-                },
-                bgcolor: "rgba(255,255,255,0.05)",
-              }}
-              MenuProps={{
-                PaperProps: {
-                  sx: {
-                    bgcolor: "#0B0F19",
-                    color: "white",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                  },
-                },
+                mb: 1,
+                fontSize: { xs: "11px", sm: "14px" },
+                color: "gray.400",
               }}
             >
-              {[1, 2, 3, 4].map((num) => (
-                <MenuItem key={num} value={num}>
-                  {num} Player{num > 1 && "s"}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
+              Number of Players
+            </Typography>
+            <FormControl fullWidth>
+              <Select
+                name="players"
+                value={formData.players}
+                onChange={handlePlayersChange}
+                displayEmpty
+                sx={{
+                  ...mainInputStyle,
+                  "& .MuiSelect-select": {
+                    color: "white",
+                    padding: { xs: "10px 12px", sm: "14px" },
+                    fontSize: { xs: "12px", sm: "14px" },
+                  },
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "rgba(255,255,255,0.1)",
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "rgba(51, 178, 247, 0.5)",
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#33B2F7",
+                  },
+                  bgcolor: "rgba(255,255,255,0.05)",
+                }}
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      bgcolor: "#0B0F19",
+                      color: "white",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                    },
+                  },
+                }}
+              >
+                {[1, 2, 3, 4].map((num) => (
+                  <MenuItem key={num} value={num}>
+                    {num} Player{num > 1 && "s"}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        )}
 
         {/* Render Player Forms */}
         {formData.playerDetails.map((player, idx) => (

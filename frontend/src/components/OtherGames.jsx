@@ -1,34 +1,76 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useMemo } from "react";
 import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
+import axios from "axios";
+import { API_BASE_URL } from "../apiConfig";
 
 const OtherGames = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const scrollRef = useRef(null);
   const [isAutoPlaying, setIsAutoPlaying] = useState(false);
+  const [dbGames, setDbGames] = useState([]);
+
+  useEffect(() => {
+    const fetchGames = async () => {
+      try {
+        const res = await axios.get(`${API_BASE_URL}/api/games`);
+        if (res.data.status === "success") {
+          setDbGames(res.data.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch games", err);
+      }
+    };
+    fetchGames();
+  }, []);
+
+  const gamesMap = useMemo(() => {
+    const map = {};
+    dbGames.forEach((g) => {
+      if (g.title) map[g.title] = g;
+    });
+    return map;
+  }, [dbGames]);
+
+  const getPriceLines = (dbGame, fallback) => {
+    if (!dbGame) return [fallback];
+    const method = (dbGame.method || "").replace(/"/g, "").trim();
+    const { price, packages } = dbGame;
+    if (method === "Coin" && price) return [`Rs. ${price} / Coin`];
+    if (method === "Per Hour" && price) return [`Rs. ${price} / hr (1 Person)`];
+    if (packages && packages.length > 0) {
+      if (method === "Arrow")
+        return packages.map((pkg) => `Rs. ${pkg.price} / ${pkg.arrows} Arrows`);
+      if (method === "Per Minute")
+        return packages.map((pkg) => `Rs. ${pkg.price} / ${pkg.minutes} min`);
+    }
+    if (price) return [`Rs. ${price}`];
+    return [fallback];
+  };
+
   const otherGames = [
     {
       id: 1,
       title: "Arcade Machine",
       description:
-        "Latest PS5 games with 4K graphics and immersive gameplay on premium gaming setups",
-    displayPrice: "Rs 100 / Coin",
+        "Classic and modern arcade games for all ages with competitive high-score challenges",
+      displayPrice: "Rs 100 / Coin",
       image: "/Images/pic1.png",
     },
     {
       id: 2,
       title: "Archery Gaming",
       description:
-        "Latest PS5 games with 4K graphics and immersive gameplay on premium gaming setups",
-    displayPrice: "Rs 600 / 5 Arrows",
+        "Precision archery simulation with real physics and exciting target challenges",
+      displayPrice: "Rs 600 / 5 Arrows",
       image: "/Images/pic2.png",
     },
     {
       id: 3,
       title: "Carrom Gaming",
       description:
-        "Latest PS5 games with 4K graphics and immersive gameplay on premium gaming setups",
-    displayPrice: "Rs 75 / hr (1 Person)",
+        "Traditional carrom board gaming with premium quality boards and competitive play",
+      displayPrice: "Rs 75 / hr (1 Person)",
       image: "/Images/pic3.png",
     },
   ];
@@ -161,6 +203,10 @@ const OtherGames = () => {
         >
           {otherGames.map((game, idx) => {
             const clipPath = cardVariants[idx % cardVariants.length];
+            const dbGame = gamesMap[game.title];
+            const image = (dbGame && dbGame.thumbnail_url) || game.image;
+            const description = (dbGame && dbGame.description) || game.description;
+            const priceLines = getPriceLines(dbGame, game.displayPrice);
 
             return (
               <Box
@@ -193,8 +239,12 @@ const OtherGames = () => {
                   {/* Image */}
                   <Box
                     component="img"
-                    src={game.image}
+                    src={image}
                     alt={game.title}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = game.image;
+                    }}
                     sx={{
                       width: "100%",
                       height: "100%",
@@ -240,19 +290,22 @@ const OtherGames = () => {
                         {game.title}
                       </Typography>
 
-                       <Typography
-                        variant="body2"
-                        sx={{
-                          fontSize: { xs: "15px", sm: "16px", md: "18px" },
-                          color: "#00d7ec",
-                          opacity: 0.9,
-                          textAlign: "center",
-                          lineHeight: 1.6,
-                          fontWeight:"bold",
-                        }}
-                      >
-                        {game.displayPrice}
-                      </Typography>
+                      {priceLines.map((line, i) => (
+                        <Typography
+                          key={i}
+                          variant="body2"
+                          sx={{
+                            fontSize: { xs: "13px", sm: "14px", md: "16px" },
+                            color: "#00d7ec",
+                            opacity: 0.9,
+                            textAlign: "center",
+                            lineHeight: 1.5,
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {line}
+                        </Typography>
+                      ))}
 
                       <Typography
                         variant="body2"
@@ -268,9 +321,8 @@ const OtherGames = () => {
                           overflow: { xs: "hidden", md: "visible" },
                         }}
                       >
-                        {game.description}
+                        {description}
                       </Typography>
-                       
                     </Box>
                   </Box>
                 </Box>

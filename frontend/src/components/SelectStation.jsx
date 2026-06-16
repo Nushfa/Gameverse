@@ -452,7 +452,7 @@ const SelectStation = ({ onNext, selectedStation, stations = [] }) => {
                     </Box>
                   )}
 
-                  <Typography
+                  {/* <Typography
                     variant="body2"
                     sx={{
                       fontSize: { xs: "10px", md: "12px" },
@@ -463,7 +463,7 @@ const SelectStation = ({ onNext, selectedStation, stations = [] }) => {
                   >
                     {station.description ||
                       "Latest PS5 games with 4K graphics and immersive gameplay on premium gaming setups"}
-                  </Typography>
+                  </Typography> */}
                 </Box>
               </Box>
             </Box>

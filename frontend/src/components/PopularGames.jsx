@@ -52,13 +52,31 @@ export default function FeaturedGames() {
 
   const commonThumbnailMap = useMemo(() => {
     const map = {};
-
     stations.forEach((station) => {
       if (station.type && station.common_thumbnail_url) {
         map[station.type] = station.common_thumbnail_url;
       }
     });
+    return map;
+  }, [stations]);
 
+  const thumbnailMap = useMemo(() => {
+    const map = {};
+    stations.forEach((station) => {
+      if (station.type && station.thumbnail_url && !map[station.type]) {
+        map[station.type] = station.thumbnail_url;
+      }
+    });
+    return map;
+  }, [stations]);
+
+  const descriptionMap = useMemo(() => {
+    const map = {};
+    stations.forEach((station) => {
+      if (station.type && station.description && !map[station.type]) {
+        map[station.type] = station.description;
+      }
+    });
     return map;
   }, [stations]);
 
@@ -350,7 +368,8 @@ export default function FeaturedGames() {
             }}
           >
             {games.map((game, index) => {
-              const image = commonThumbnailMap[game.category] || game.img;
+              const image = commonThumbnailMap[game.category] || thumbnailMap[game.category] || game.img;
+              const description = descriptionMap[game.category] || game.description;
 
               return (
                 <Box
@@ -448,6 +467,10 @@ export default function FeaturedGames() {
                       component="img"
                       src={image}
                       alt={game.title}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = game.img;
+                      }}
                       sx={{
                         width: "100%",
                         height: "100%",
@@ -540,16 +563,7 @@ export default function FeaturedGames() {
                             lineHeight: { xs: 1.2, md: 1.32 },
                           }}
                         >
-                          {(game.descLines ?? [game.description]).map(
-                            (line, idx) => (
-                              <React.Fragment key={idx}>
-                                {line}
-                                {idx !== (game.descLines?.length ?? 1) - 1 && (
-                                  <br />
-                                )}
-                              </React.Fragment>
-                            ),
-                          )}
+                          {description}
                         </Typography>
                       </Box>
                     </Box>

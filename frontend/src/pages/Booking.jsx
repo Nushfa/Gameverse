@@ -1,5 +1,5 @@
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Box, Button, duration, GlobalStyles, Typography } from "@mui/material";
+import { Box, Button, GlobalStyles, Typography } from "@mui/material";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -104,33 +104,32 @@ const Booking = () => {
     if (!selectedDuration) return 0;
 
     const pricingArray = bookingData.station.pricing || [];
-
     const price30 = pricingArray.find((p) => Number(p.duration) === 30);
     const price60 = pricingArray.find((p) => Number(p.duration) === 60);
 
-    if (!price30 || !price60) return 0;
+    if (!price30 && !price60) return 0;
+
+    const rate60Normal = price60
+      ? parseFloat(price60.price || 0)
+      : parseFloat(price30.price || 0) * 2;
+    const rate60VR = price60
+      ? parseFloat(price60.vrPrice || price60.price || 0)
+      : parseFloat(price30.vrPrice || price30.price || 0) * 2;
+    const rate30Normal = price30
+      ? parseFloat(price30.price || 0)
+      : parseFloat(price60.price || 0) / 2;
+    const rate30VR = price30
+      ? parseFloat(price30.vrPrice || price30.price || 0)
+      : parseFloat(price60.vrPrice || price60.price || 0) / 2;
 
     let total = 0;
+    const hours = Math.floor(selectedDuration / 60);
+    const remainingMinutes = selectedDuration % 60;
 
     playerInfo.playerDetails?.forEach((player) => {
       const isVR = player.vrPlay === "yes";
-
-      const hours = Math.floor(selectedDuration / 60);
-      const remainingMinutes = selectedDuration % 60;
-
-      if (hours > 0) {
-        const baseHour = isVR
-          ? parseFloat(price60.vrPrice || 0)
-          : parseFloat(price60.price || 0);
-        total += hours * baseHour;
-      }
-
-      if (remainingMinutes === 30) {
-        const base30 = isVR
-          ? parseFloat(price30.vrPrice || 0)
-          : parseFloat(price30.price || 0);
-        total += base30;
-      }
+      if (hours > 0) total += hours * (isVR ? rate60VR : rate60Normal);
+      if (remainingMinutes === 30) total += isVR ? rate30VR : rate30Normal;
     });
 
     return total;
@@ -244,6 +243,7 @@ const Booking = () => {
           onPlayerInfoChange={handlePlayerInfoChange}
           amount={totalAmount}
           onBookingSubmit={handleBookingSubmit}
+          stationType={stationType}
         />
 
         {/* Submit Button */}

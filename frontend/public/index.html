@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="icon" href="%PUBLIC_URL%/logo.png" type="image/png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <meta
@@ -15,7 +15,7 @@
   default-src 'self';
   script-src 'self' https://sandbox.payhere.lk https://www.payhere.lk https://www.google-analytics.com https://maxcdn.bootstrapcdn.com 'unsafe-inline';
   style-src 'self' https://maxcdn.bootstrapcdn.com 'unsafe-inline';
-  img-src 'self' data: https:;
+  img-src 'self' data: https: %REACT_APP_ADMIN_BASE_URL%;
   connect-src 'self' http://localhost:8001 https://sandbox.payhere.lk https://api.gameverse.lk;
   frame-src 'self' https://www.google.com https://sandbox.payhere.lk;
 "
@@ -40,7 +40,7 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>React App</title>
+    <title>Gameverse</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

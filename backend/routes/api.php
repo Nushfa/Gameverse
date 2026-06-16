@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\StationController;
+use App\Http\Controllers\Api\GameController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
@@ -37,6 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::get('/stations', [StationController::class, 'index']);
+Route::get('/games', [GameController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/bookings', [BookingController::class, 'index']);
