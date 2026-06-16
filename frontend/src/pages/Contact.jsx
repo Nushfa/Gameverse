@@ -11,6 +11,7 @@ import axios from "axios";
 import astronaut from "../assets/astronaut.png";
 import BookingSection from "../components/BookingSection";
 import { API_BASE_URL } from "../apiConfig";
+import AppDialog from "../components/AppDialog";
 
 const Contact = () => {
   const [formData, setFormData] = React.useState({
@@ -20,6 +21,9 @@ const Contact = () => {
     phone: "",
     message: "",
   });
+  const [dialog, setDialog] = React.useState({ open: false, type: "success", message: "" });
+  const showDialog = (type, message) => setDialog({ open: true, type, message });
+  const closeDialog = () => setDialog((d) => ({ ...d, open: false }));
 
   //Input change handler
   const handleChange = (e) => {
@@ -30,8 +34,7 @@ const Contact = () => {
   const handleSubmit = async () => {
     try {
       const res = await axios.post(`${API_BASE_URL}/api/contact`, formData);
-      alert(res.data.message);
-
+      showDialog("success", res.data.message);
       setFormData({
         first_name: "",
         last_name: "",
@@ -41,7 +44,7 @@ const Contact = () => {
       });
     } catch (error) {
       console.error(error.response?.data || error.message);
-      alert("Failed to send message");
+      showDialog("error", "Failed to send message. Please try again.");
     }
   };
 
@@ -306,6 +309,7 @@ const Contact = () => {
           <BookingSection />
         </Box>
       </Box>
+      <AppDialog open={dialog.open} onClose={closeDialog} type={dialog.type} message={dialog.message} />
     </>
   );
 };

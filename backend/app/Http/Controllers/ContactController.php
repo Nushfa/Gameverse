@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Contact;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ContactMail;
 
 class ContactController extends Controller
 {
@@ -17,7 +18,8 @@ class ContactController extends Controller
             'message'    => 'required',
         ]);
 
-        Contact::create($request->all());
+        Mail::to(config('mail.admin_email'))
+            ->send(new ContactMail($request->only(['first_name', 'last_name', 'email', 'phone', 'message'])));
 
         return response()->json([
             'message' => 'Message sent successfully'

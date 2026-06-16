@@ -251,6 +251,19 @@ const SelectStation = ({ onNext, selectedStation, stations = [] }) => {
         Select Station
       </Typography>
 
+      {stations.length === 0 && (
+        <Typography
+          sx={{
+            textAlign: "center",
+            color: "rgba(255,255,255,0.4)",
+            fontSize: { xs: "14px", sm: "16px" },
+            mt: 4,
+          }}
+        >
+          No stations available.
+        </Typography>
+      )}
+
       {/* Scrollable Stations Container */}
       <Box
         ref={scrollRef}

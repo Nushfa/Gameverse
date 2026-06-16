@@ -11,6 +11,7 @@ import {
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { API_BASE_URL } from "../apiConfig";
+import AppDialog from "./AppDialog";
 
 export default function Security() {
   const [showPassword, setShowPassword] = useState({
@@ -24,6 +25,10 @@ export default function Security() {
     newPassword: "",
     confirmPassword: "",
   });
+
+  const [dialog, setDialog] = useState({ open: false, type: "success", message: "" });
+  const showDialog = (type, message) => setDialog({ open: true, type, message });
+  const closeDialog = () => setDialog((d) => ({ ...d, open: false }));
 
   const togglePassword = (field) => {
     setShowPassword((prev) => ({ ...prev, [field]: !prev[field] }));
@@ -46,14 +51,14 @@ export default function Security() {
 
   const handleUpdatePassword = async () => {
     if (form.newPassword !== form.confirmPassword) {
-      alert("Passwords do not match");
+      showDialog("error", "Passwords do not match.");
       return;
     }
 
     const token = localStorage.getItem("authToken");
 
     if (!token) {
-      alert("You are not authenticated!");
+      showDialog("error", "You are not authenticated!");
       return;
     }
 
@@ -72,8 +77,7 @@ export default function Security() {
         }
       );
 
-      alert("Password updated successfully");
-
+      showDialog("success", "Password updated successfully.");
       setForm({
         currentPassword: "",
         newPassword: "",
@@ -81,7 +85,7 @@ export default function Security() {
       });
     } catch (error) {
       console.error(error);
-      alert(error.response?.data?.message || "Password update failed");
+      showDialog("error", error.response?.data?.message || "Password update failed.");
     }
   };
 
@@ -194,6 +198,7 @@ export default function Security() {
           Update
         </Button>
       </Box>
+      <AppDialog open={dialog.open} onClose={closeDialog} type={dialog.type} message={dialog.message} />
     </Box>
   );
 }

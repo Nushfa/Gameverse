@@ -222,6 +222,8 @@ const EventsSection = () => {
     };
   };
 
+  if (!tournaments.length) return null;
+
   return (
     <>
       <GlobalStyles

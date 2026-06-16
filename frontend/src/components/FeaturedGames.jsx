@@ -15,6 +15,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_BASE_URL } from "../apiConfig";
+import AppDialog from "./AppDialog";
 
 export const games = [
   {
@@ -61,9 +62,11 @@ export default function FeaturedGames() {
   const autoPlayIntervalRef = useRef(null);
 
   const [snaps, setSnaps] = useState([]);
-
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(false);
+  const [dialog, setDialog] = useState({ open: false, type: "error", message: "" });
+  const showDialog = (type, message) => setDialog({ open: true, type, message });
+  const closeDialog = () => setDialog((d) => ({ ...d, open: false }));
 
   const isDesktop = useMediaQuery("(min-width:900px)");
   // number of visible items per slide
@@ -121,7 +124,7 @@ export default function FeaturedGames() {
     const token = localStorage.getItem("authToken");
 
     if (!token) {
-      alert("Please login to continue booking!");
+      showDialog("error", "Please login to continue booking!");
       navigate("/sign-in");
       return;
     }
@@ -620,6 +623,7 @@ export default function FeaturedGames() {
           }}
         ></Box>
       </Box>
+      <AppDialog open={dialog.open} onClose={closeDialog} type={dialog.type} message={dialog.message} />
     </>
   );
 }

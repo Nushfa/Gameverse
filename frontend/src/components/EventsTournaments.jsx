@@ -100,6 +100,8 @@ const EventsTournaments = () => {
     }
   };
 
+  if (!tournaments.length) return null;
+
   return (
     <Box
       component="section"

@@ -132,6 +132,8 @@ const GalleryView = () => {
     };
   }, [isAutoPlaying]);
 
+  if (!galleryImages.length) return null;
+
   return (
     <>
       <GlobalStyles

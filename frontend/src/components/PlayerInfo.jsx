@@ -21,6 +21,7 @@ import { API_BASE_URL } from "../apiConfig";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
+import AppDialog from "./AppDialog";
 
 // --- 1. Booking Details (Receipt) Modal ---
 const BookingDetailsModal = ({ open, onClose, data, downloadReceipts }) => {
@@ -153,6 +154,10 @@ const PlayerInfo = ({
   onBookingSubmit,
   stationType,
 }) => {
+  const [dialog, setDialog] = useState({ open: false, type: "success", message: "" });
+  const showDialog = (type, message) => setDialog({ open: true, type, message });
+  const closeDialog = () => setDialog((d) => ({ ...d, open: false }));
+
   const [formData, setFormData] = useState({
     players: 1,
     playerDetails: [
@@ -265,32 +270,32 @@ const PlayerInfo = ({
         country: "Sri Lanka",
       };
 
-      window.payhere.onCompleted = function () {
-        onBookingSubmit(orderId);
-
-        setReceiptData({
-          orderId: orderId,
-          playerDetails: playersWithAmounts,
-          station: selectedStation,
-          date: selectedDateTime?.date,
-          startTime: selectedDateTime?.time,
-          duration: selectedDateTime?.duration,
-        });
-
-        setIsReceiptOpen(true);
+      window.payhere.onCompleted = async function () {
+        const success = await onBookingSubmit(orderId);
+        if (success) {
+          setReceiptData({
+            orderId: orderId,
+            playerDetails: playersWithAmounts,
+            station: selectedStation,
+            date: selectedDateTime?.date,
+            startTime: selectedDateTime?.time,
+            duration: selectedDateTime?.duration,
+          });
+          setIsReceiptOpen(true);
+        }
       };
 
       window.payhere.onDismissed = function () {
-        alert("Payment was cancelled.");
+        showDialog("error", "Payment was cancelled.");
       };
 
       window.payhere.onError = function () {
-        alert("Payment error occurred!");
+        showDialog("error", "Payment error occurred. Please try again.");
       };
 
       window.payhere.startPayment(payment);
     } catch (err) {
-      alert("Failed to initiate payment.");
+      showDialog("error", "Failed to initiate payment. Please try again.");
       console.error(err);
     }
   };
@@ -761,6 +766,7 @@ const PlayerInfo = ({
         data={receiptData}
         downloadReceipts={downloadSeparateReceipts}
       />
+      <AppDialog open={dialog.open} onClose={closeDialog} type={dialog.type} message={dialog.message} />
     </Box>
   );
 };

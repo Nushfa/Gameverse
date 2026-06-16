@@ -12,8 +12,8 @@ import { styled } from "@mui/system";
 import singup from "../assets/singup-img.png";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { toast } from "react-toastify";
 import { API_BASE_URL } from "../apiConfig";
+import AppDialog from "../components/AppDialog";
 
 const Frame = styled(Box)(({ theme }) => ({
   maxWidth: "900px",
@@ -111,6 +111,14 @@ const boldPath = `
 
 const SingUp = () => {
   const [isHover, setIsHover] = useState(false);
+  const [dialog, setDialog] = useState({ open: false, type: "success", message: "", navigateOnClose: false });
+  const showDialog = (type, message, navigateOnClose = false) =>
+    setDialog({ open: true, type, message, navigateOnClose });
+  const closeDialog = () => {
+    const shouldNav = dialog.navigateOnClose;
+    setDialog((d) => ({ ...d, open: false }));
+    if (shouldNav) navigate("/sign-in");
+  };
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -154,12 +162,12 @@ const SingUp = () => {
     // Validate password
     const passwordError = validatePassword(formData.password);
     if (passwordError) {
-      toast.error(passwordError);
+      showDialog("error", passwordError);
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords do not match!");
+      showDialog("error", "Passwords do not match!");
       return;
     }
 
@@ -172,8 +180,6 @@ const SingUp = () => {
         password: formData.password,
       });
 
-      toast.success("Registration successful! Please sign in.");
-
       setFormData({
         firstName: "",
         lastName: "",
@@ -183,18 +189,14 @@ const SingUp = () => {
         confirmPassword: "",
       });
 
-      navigate("/sign-in");
+      showDialog("success", "Registration successful! Please sign in.", true);
     } catch (err) {
       console.error("Registration error:", err);
-      console.error("Error response:", err.response);
-      
-      // Handle Laravel validation errors
       if (err.response?.data?.errors) {
-        const errors = err.response.data.errors;
-        const firstError = Object.values(errors)[0][0];
-        toast.error(firstError);
+        const firstError = Object.values(err.response.data.errors)[0][0];
+        showDialog("error", firstError);
       } else {
-        toast.error(err.response?.data?.message || "Registration failed!");
+        showDialog("error", err.response?.data?.message || "Registration failed!");
       }
     }
   };
@@ -595,6 +597,7 @@ const SingUp = () => {
           }}
         />
       </Box>
+      <AppDialog open={dialog.open} onClose={closeDialog} type={dialog.type} message={dialog.message} />
     </>
   );
 };

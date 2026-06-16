@@ -7,9 +7,13 @@ import PickDateTime from "../components/PickDateTime";
 import PlayerInfo from "../components/PlayerInfo";
 import SelectStation from "../components/SelectStation";
 import { API_BASE_URL } from "../apiConfig";
+import AppDialog from "../components/AppDialog";
 
 const Booking = () => {
   const navigate = useNavigate();
+  const [dialog, setDialog] = useState({ open: false, type: "success", message: "" });
+  const showDialog = (type, message) => setDialog({ open: true, type, message });
+  const closeDialog = () => setDialog((d) => ({ ...d, open: false }));
   const location = useLocation();
   const backTarget = location.state?.from || "/";
   const [bookingData, setBookingData] = useState({
@@ -58,7 +62,7 @@ const Booking = () => {
     const token = localStorage.getItem("authToken");
 
     if (!bookingData.station || !bookingData.dateTime) {
-      alert("Please select a station and date/time.");
+      showDialog("error", "Please select a station and date/time.");
       return;
     }
 
@@ -81,16 +85,18 @@ const Booking = () => {
           vr_play: player.vrPlay,
           number_of_players: 1,
           payment_method: "PayHere",
-          order_id: orderId, // optional: store order ID
+          order_id: orderId,
         };
 
         await axios.post(`${API_BASE_URL}/api/bookings`, payload, {
           headers: { Authorization: `Bearer ${token}` },
         });
       }
+      return true;
     } catch (err) {
       console.error(err);
-      alert("Failed to create bookings");
+      showDialog("error", "Failed to create bookings. Please try again.");
+      return false;
     }
   };
 
@@ -277,6 +283,7 @@ const Booking = () => {
           </Button> */}
         </Box>
       </Box>
+      <AppDialog open={dialog.open} onClose={closeDialog} type={dialog.type} message={dialog.message} />
     </>
   );
 };

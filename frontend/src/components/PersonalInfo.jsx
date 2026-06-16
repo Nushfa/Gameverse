@@ -13,6 +13,7 @@ import {
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { API_BASE_URL } from "../apiConfig";
+import AppDialog from "./AppDialog";
 
 const fieldLabelStyles = {
   color: "#9CA3AF",
@@ -66,6 +67,9 @@ export default function PersonalInfo() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(false);
+  const [dialog, setDialog] = useState({ open: false, type: "success", message: "" });
+  const showDialog = (type, message) => setDialog({ open: true, type, message });
+  const closeDialog = () => setDialog((d) => ({ ...d, open: false }));
 
   const [form, setForm] = useState({
     firstName: "",
@@ -152,7 +156,7 @@ export default function PersonalInfo() {
       const token = localStorage.getItem("authToken");
 
       if (!token) {
-        alert("You are not authenticated!");
+        showDialog("error", "You are not authenticated!");
         setSaving(false);
         return;
       }
@@ -165,7 +169,7 @@ export default function PersonalInfo() {
       if (form.dob) updatedFields.dob = form.dob.format("YYYY-MM-DD");
 
       if (Object.keys(updatedFields).length === 0) {
-        alert("No changes to update");
+        showDialog("error", "No changes to update.");
         setSaving(false);
         return;
       }
@@ -177,10 +181,10 @@ export default function PersonalInfo() {
         },
       });
 
-      alert("Profile updated successfully ");
+      showDialog("success", "Profile updated successfully.");
     } catch (err) {
       console.error("Update failed", err);
-      alert("Failed to update profile");
+      showDialog("error", "Failed to update profile.");
     } finally {
       setSaving(false);
     }
@@ -398,6 +402,7 @@ export default function PersonalInfo() {
           {saving ? "Updating..." : "Update"}
         </Button>
       </Box>
+      <AppDialog open={dialog.open} onClose={closeDialog} type={dialog.type} message={dialog.message} />
     </Box>
   );
 }

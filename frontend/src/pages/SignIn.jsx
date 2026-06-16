@@ -12,8 +12,8 @@ import { styled } from "@mui/system";
 import singup from "../assets/singup-img.png";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { toast } from "react-toastify";
 import { API_BASE_URL } from "../apiConfig";
+import AppDialog from "../components/AppDialog";
 
 /* ------------------------ FRAME BACKGROUND ------------------------ */
 
@@ -123,6 +123,14 @@ Z
 /* ------------------------ SIGN-IN COMPONENT ------------------------ */
 
 const SignIn = () => {
+  const [dialog, setDialog] = useState({ open: false, type: "success", message: "", navigateOnClose: false });
+  const showDialog = (type, message, navigateOnClose = false) =>
+    setDialog({ open: true, type, message, navigateOnClose });
+  const closeDialog = () => {
+    const shouldNav = dialog.navigateOnClose;
+    setDialog((d) => ({ ...d, open: false }));
+    if (shouldNav) navigate("/");
+  };
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -152,17 +160,14 @@ const SignIn = () => {
         phone: res.data.user.phone,
       };
 
-      toast.success("Login successful!");
-
       localStorage.setItem("authToken", userData.token);
       localStorage.setItem("user", JSON.stringify(userData));
-
       window.dispatchEvent(new Event("userUpdated"));
 
-      navigate("/");
+      showDialog("success", "Login successful!", true);
     } catch (err) {
       console.error("Login error:", err.response?.data || err.message);
-      toast.error(err.response?.data?.message || "Login failed!");
+      showDialog("error", err.response?.data?.message || "Login failed!");
     }
   };
 
@@ -490,6 +495,7 @@ const SignIn = () => {
           }}
         />
       </Box>
+      <AppDialog open={dialog.open} onClose={closeDialog} type={dialog.type} message={dialog.message} />
     </>
   );
 };
