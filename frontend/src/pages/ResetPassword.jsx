@@ -13,8 +13,8 @@ import singup from "../assets/singup-img.png";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import backIcon from "../assets/back-icon.png";
-import { toast } from "react-toastify";
 import { API_BASE_URL } from "../apiConfig";
+import AppDialog from "../components/AppDialog";
 
 // -------- Frame with MOBILE ONLY adjustments --------
 const Frame = styled(Box)(({ theme }) => ({
@@ -112,9 +112,19 @@ const ResetPassword = () => {
     password: "",
     confirmPassword: "",
   });
+  const [dialog, setDialog] = useState({ open: false, type: "success", message: "", navigateOnClose: false });
 
   const [showPassword, setShowPassword] = useState(true);
   const [showConfirmPassword, setShowConfirmPassword] = useState(true);
+
+  const showDialog = (type, message, navigateOnClose = false) =>
+    setDialog({ open: true, type, message, navigateOnClose });
+
+  const closeDialog = () => {
+    const shouldNav = dialog.navigateOnClose;
+    setDialog((d) => ({ ...d, open: false }));
+    if (shouldNav) navigate("/sign-in");
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -122,7 +132,7 @@ const ResetPassword = () => {
 
   const handleReset = async () => {
     if (formData.password !== formData.confirmPassword) {
-      toast.warning("Passwords do not match!");
+      showDialog("error", "Passwords do not match!");
       return;
     }
 
@@ -130,7 +140,7 @@ const ResetPassword = () => {
     const email = sessionStorage.getItem("reset_email");
 
     if (!reset_token || !email) {
-      toast.error("Missing reset token. Restart the reset flow.");
+      showDialog("error", "Missing reset token. Please restart the reset flow.");
       return;
     }
 
@@ -142,15 +152,14 @@ const ResetPassword = () => {
         reset_token,
       });
 
-      toast.success("Reset successful!");
       const token = res.data.token;
       localStorage.setItem("authToken", token);
-
       sessionStorage.removeItem("reset_token");
       sessionStorage.removeItem("reset_email");
-      navigate("/sign-in");
+
+      showDialog("success", "Your password has been reset successfully!", true);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Reset failed!");
+      showDialog("error", err.response?.data?.message || "Reset failed. Please try again.");
     }
   };
 
@@ -367,6 +376,13 @@ const ResetPassword = () => {
           }}
         />
       </Box>
+
+      <AppDialog
+        open={dialog.open}
+        onClose={closeDialog}
+        type={dialog.type}
+        message={dialog.message}
+      />
     </>
   );
 };

@@ -2,95 +2,193 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>New Contact Message</title>
 </head>
-<body style="margin:0;padding:0;background-color:#f0f2f5;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+<body style="margin:0;padding:0;background-color:#06080F;font-family:Arial,Helvetica,sans-serif;">
 
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0f2f5;padding:40px 16px;">
+  <!-- Outer wrapper -->
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#06080F;padding:40px 20px;">
     <tr>
       <td align="center">
-        <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
 
-          {{-- Top accent line --}}
+        <!-- Card -->
+        <table width="100%" cellpadding="0" cellspacing="0" border="0"
+          style="max-width:560px;background-color:#0F111F;border-radius:16px;border:1px solid #1E1B33;overflow:hidden;">
+
+          <!-- Top accent bar -->
           <tr>
-            <td style="height:3px;background:linear-gradient(to right,#7C3AED,#A855F7,#38BDF8);border-radius:3px 3px 0 0;"></td>
+            <td style="height:4px;background:linear-gradient(to right,#CF36E1,#33B2F7);font-size:0;line-height:0;">&nbsp;</td>
           </tr>
 
-          {{-- Card --}}
+          <!-- Header -->
           <tr>
-            <td style="background-color:#ffffff;padding:40px 44px 32px;border-left:1px solid #e8eaf0;border-right:1px solid #e8eaf0;">
-
-              {{-- Logo / brand --}}
-              <p style="margin:0 0 2px;font-size:18px;font-weight:800;letter-spacing:4px;color:#7C3AED;">GAMEVERSE</p>
-              <p style="margin:0 0 32px;font-size:11px;letter-spacing:2px;color:#94a3b8;text-transform:uppercase;">Contact Form</p>
-
-              {{-- Intro --}}
-              <p style="margin:0 0 28px;font-size:14px;color:#64748b;line-height:1.7;">
-                A visitor has submitted a message through the contact form. Here are their details.
+            <td align="center" style="padding:36px 40px 20px;">
+              <p style="margin:0;font-size:28px;font-weight:800;letter-spacing:3px;color:#CF36E1;text-transform:uppercase;">
+                GAMEVERSE
               </p>
+              <p style="margin:8px 0 0;font-size:13px;color:#5C5E7A;letter-spacing:1px;text-transform:uppercase;">
+                New Contact Message
+              </p>
+            </td>
+          </tr>
 
-              {{-- Fields --}}
-              <table width="100%" cellpadding="0" cellspacing="0">
-
+          <!-- Divider -->
+          <tr>
+            <td style="padding:0 40px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td style="padding-bottom:20px;">
-                    <p style="margin:0 0 3px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;">Full Name</p>
-                    <p style="margin:0;font-size:15px;font-weight:600;color:#1e293b;">{{ $contactData['first_name'] }} {{ $contactData['last_name'] }}</p>
+                  <td style="height:1px;background-color:#1E1B33;font-size:0;line-height:0;">&nbsp;</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Intro text -->
+          <tr>
+            <td align="center" style="padding:28px 40px 0;">
+              <p style="margin:0;font-size:15px;color:#A0A3C0;line-height:1.7;">
+                A visitor has submitted a message through the contact form.<br/>
+                Here are their details.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Fields box -->
+          <tr>
+            <td style="padding:24px 40px;">
+              <table cellpadding="0" cellspacing="0" border="0"
+                style="background-color:#17192E;border-radius:12px;border:1px solid #2E2B4A;width:100%;">
+                <tr>
+                  <td style="padding:28px 28px 8px;">
+
+                    <!-- Full Name -->
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
+                      <tr>
+                        <td>
+                          <p style="margin:0 0 4px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#5C5E7A;">
+                            Full Name
+                          </p>
+                          <p style="margin:0;font-size:15px;font-weight:600;color:#ffffff;">
+                            {{ $contactData['first_name'] }} {{ $contactData['last_name'] }}
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Divider -->
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
+                      <tr>
+                        <td style="height:1px;background-color:#2E2B4A;font-size:0;line-height:0;">&nbsp;</td>
+                      </tr>
+                    </table>
+
+                    <!-- Email Address -->
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
+                      <tr>
+                        <td>
+                          <p style="margin:0 0 4px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#5C5E7A;">
+                            Email Address
+                          </p>
+                          <p style="margin:0;font-size:15px;font-weight:600;">
+                            <a href="mailto:{{ $contactData['email'] }}"
+                              style="color:#33B2F7;text-decoration:none;">
+                              {{ $contactData['email'] }}
+                            </a>
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Divider -->
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
+                      <tr>
+                        <td style="height:1px;background-color:#2E2B4A;font-size:0;line-height:0;">&nbsp;</td>
+                      </tr>
+                    </table>
+
+                    <!-- Phone -->
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:8px;">
+                      <tr>
+                        <td>
+                          <p style="margin:0 0 4px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#5C5E7A;">
+                            Phone
+                          </p>
+                          <p style="margin:0;font-size:15px;font-weight:600;color:#ffffff;">
+                            {{ !empty($contactData['phone']) ? $contactData['phone'] : '—' }}
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+
                   </td>
                 </tr>
+              </table>
+            </td>
+          </tr>
 
+          <!-- Message box -->
+          <tr>
+            <td style="padding:0 40px 32px;">
+              <table cellpadding="0" cellspacing="0" border="0"
+                style="background-color:#17192E;border-radius:12px;border:1px solid #2E2B4A;width:100%;">
                 <tr>
-                  <td style="padding-bottom:20px;">
-                    <p style="margin:0 0 3px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;">Email Address</p>
-                    <p style="margin:0;font-size:15px;font-weight:600;">
-                      <a href="mailto:{{ $contactData['email'] }}" style="color:#7C3AED;text-decoration:none;">{{ $contactData['email'] }}</a>
+                  <td style="padding:24px 28px;">
+                    <p style="margin:0 0 10px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#5C5E7A;">
+                      Message
+                    </p>
+                    <p style="margin:0;font-size:14px;color:#A0A3C0;line-height:1.9;white-space:pre-wrap;">{{ $contactData['message'] }}</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Warning / note -->
+          <tr>
+            <td style="padding:0 40px 28px;">
+              <table cellpadding="0" cellspacing="0" border="0"
+                style="background-color:#1A0E20;border-radius:8px;border:1px solid #3B1A42;width:100%;">
+                <tr>
+                  <td style="padding:14px 18px;">
+                    <p style="margin:0;font-size:13px;color:#C084DC;line-height:1.6;">
+                      &#9993;&nbsp; Reply directly to <strong style="color:#ffffff;">{{ $contactData['email'] }}</strong> to respond to this visitor.
                     </p>
                   </td>
                 </tr>
-
-                <tr>
-                  <td style="padding-bottom:28px;">
-                    <p style="margin:0 0 3px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;">Phone</p>
-                    <p style="margin:0;font-size:15px;font-weight:600;color:#1e293b;">{{ !empty($contactData['phone']) ? $contactData['phone'] : '—' }}</p>
-                  </td>
-                </tr>
-
-                {{-- Divider --}}
-                <tr>
-                  <td style="padding-bottom:24px;">
-                    <div style="height:1px;background-color:#f1f5f9;"></div>
-                  </td>
-                </tr>
-
-                {{-- Message --}}
-                <tr>
-                  <td>
-                    <p style="margin:0 0 10px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;">Message</p>
-                    <p style="margin:0;font-size:14px;color:#334155;line-height:1.9;white-space:pre-wrap;">{{ $contactData['message'] }}</p>
-                  </td>
-                </tr>
-
               </table>
-
             </td>
           </tr>
 
-          {{-- Footer --}}
+          <!-- Footer divider -->
           <tr>
-            <td style="background-color:#fafafa;padding:18px 44px;border:1px solid #e8eaf0;border-top:none;">
-              <p style="margin:0;font-size:11px;color:#b0bac8;line-height:1.6;">
-                Sent automatically from the Gameverse contact form &mdash; please do not reply to this email.
+            <td style="padding:0 40px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="height:1px;background-color:#1E1B33;font-size:0;line-height:0;">&nbsp;</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td align="center" style="padding:24px 40px 36px;">
+              <p style="margin:0;font-size:12px;color:#3A3C58;line-height:1.7;">
+                &copy; {{ date('Y') }} Gameverse. All rights reserved.<br/>
+                This is an automated message from the Gameverse contact form &mdash; please do not reply directly.
               </p>
             </td>
           </tr>
 
-          {{-- Bottom accent line --}}
+          <!-- Bottom accent bar -->
           <tr>
-            <td style="height:3px;background:linear-gradient(to right,#7C3AED,#A855F7,#38BDF8);border-radius:0 0 3px 3px;"></td>
+            <td style="height:4px;background:linear-gradient(to right,#33B2F7,#CF36E1);font-size:0;line-height:0;">&nbsp;</td>
           </tr>
 
         </table>
+        <!-- /Card -->
+
       </td>
     </tr>
   </table>

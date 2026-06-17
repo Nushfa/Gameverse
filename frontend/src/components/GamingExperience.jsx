@@ -40,14 +40,14 @@ const secondRowFeatures = [
     image: "/Images/f11.png",
   },
   {
-    title: "Neon party nights",
+    title: "Custom Billing & Timer System",
     description: "",
-    image: "/Images/f12.png",
+    image: "/Images/f14.png",
   },
   {
-    title: "Powerful Gaming Tool",
+    title: "Air-conditioned Comfort Launge",
     description: "",
-    image: "/Images/f8.png",
+    image: "/Images/f13.png",
   },
 ];
 

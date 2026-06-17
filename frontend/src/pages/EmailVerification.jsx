@@ -5,8 +5,8 @@ import singup from "../assets/singup-img.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import backIcon from "../assets/back-icon.png";
-import { toast } from "react-toastify";
 import { API_BASE_URL } from "../apiConfig";
+import AppDialog from "../components/AppDialog";
 
 const Frame = styled(Box)(({ theme }) => ({
   maxWidth: "900px",
@@ -28,8 +28,8 @@ const Frame = styled(Box)(({ theme }) => ({
 
   /* ---------------- MOBILE ONLY ---------------- */
   [theme.breakpoints.down("sm")]: {
-    maxWidth: "80%", // slightly smaller
-    minHeight: "500px", // taller for mobile
+    maxWidth: "80%",
+    minHeight: "500px",
     padding: "20px",
     overflow: "hidden",
     background: `url(${singup}) no-repeat center bottom`,
@@ -91,8 +91,8 @@ Z
 `;
 
 const boldPath = `
-  M215 0 H650 
-  M785 0 H826         
+  M215 0 H650
+  M785 0 H826
   A24 24 0 0 1 850 24
   V426
   A24 24 0 0 1 826 450
@@ -106,8 +106,8 @@ const boldPath = `
 `;
 
 const EmailVerification = () => {
-  // state to track if code sent already
   const [codeSent, setCodeSent] = useState(false);
+  const [dialog, setDialog] = useState({ open: false, type: "success", message: "", navigateOnClose: false });
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -116,7 +116,6 @@ const EmailVerification = () => {
   const [email, setEmail] = useState("");
   const inputRefs = useRef([]);
 
-  // Get email from previous page
   const passedEmail = location.state?.email || "";
 
   useEffect(() => {
@@ -125,59 +124,86 @@ const EmailVerification = () => {
     }
   }, [passedEmail]);
 
+  const showDialog = (type, message, navigateOnClose = false) =>
+    setDialog({ open: true, type, message, navigateOnClose });
+
+  const closeDialog = () => {
+    const shouldNav = dialog.navigateOnClose;
+    setDialog((d) => ({ ...d, open: false }));
+    if (shouldNav) navigate("/reset-password");
+  };
+
   const handleInputChange = (e, index) => {
-    const value = e.target.value;
+    const value = e.target.value.replace(/[^0-9a-zA-Z]/g, "");
+    if (!value) return;
 
-    if (/^[0-9a-zA-Z]$/.test(value)) {
+    if (value.length > 1) {
+      // handles paste via onChange (some browsers)
+      const chars = value.slice(0, 6 - index).split("");
       const newCode = [...code];
-      newCode[index] = value;
+      chars.forEach((ch, i) => { newCode[index + i] = ch; });
       setCode(newCode);
+      const nextFocus = Math.min(index + chars.length, 5);
+      inputRefs.current[nextFocus]?.focus();
+      return;
+    }
 
-      // Move to next input
-      if (index < 5) {
-        inputRefs.current[index + 1]?.focus();
+    const newCode = [...code];
+    newCode[index] = value[0];
+    setCode(newCode);
+    if (index < 5) inputRefs.current[index + 1]?.focus();
+  };
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").replace(/[^0-9a-zA-Z]/g, "").slice(0, 6);
+    if (!pasted) return;
+    const newCode = Array(6).fill("");
+    pasted.split("").forEach((ch, i) => { newCode[i] = ch; });
+    setCode(newCode);
+    const nextFocus = Math.min(pasted.length, 5);
+    inputRefs.current[nextFocus]?.focus();
+  };
+
+  const handleBackspace = (e, index) => {
+    if (e.key === "Backspace") {
+      if (code[index]) {
+        const newCode = [...code];
+        newCode[index] = "";
+        setCode(newCode);
+      } else if (index > 0) {
+        inputRefs.current[index - 1]?.focus();
       }
     }
   };
 
-  const handleBackspace = (e, index) => {
-    if (e.key === "Backspace" && !code[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-  };
-
-  // New function to send verification code (initial and resend)
   const sendVerificationCode = async () => {
     if (!email) {
-      toast.warning("Please enter your email.");
+      showDialog("error", "Please enter your email.");
       return;
     }
     try {
       await axios.post(`${API_BASE_URL}/api/send-verification-code`, {
         email,
       });
-      toast.success("Verification code sent! Check your email.");
+      showDialog("success", "Verification code sent! Check your email.");
       setCodeSent(true);
-      setCode(Array(6).fill("")); // reset code input
+      setCode(Array(6).fill(""));
       inputRefs.current[0]?.focus();
     } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Failed to send verification code.",
-      );
+      showDialog("error", error.response?.data?.message || "Failed to send verification code.");
     }
   };
-  // Adjust handleVerifyEmail to just verify the code if codeSent is true
+
   const handleVerifyEmail = async () => {
     if (!codeSent) {
-      // send code on first click
       sendVerificationCode();
       return;
     }
 
-    // verify code
     const verificationCode = code.join("");
     if (verificationCode.length !== 6) {
-      toast.warning("Enter full 6-digit code.");
+      showDialog("error", "Enter full 6-digit code.");
       return;
     }
 
@@ -191,10 +217,9 @@ const EmailVerification = () => {
       sessionStorage.setItem("reset_token", resetToken);
       sessionStorage.setItem("reset_email", email);
 
-      toast.success("Email verified.");
-      navigate("/reset-password");
+      showDialog("success", "Email verified.", true);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Verification failed.");
+      showDialog("error", error.response?.data?.message || "Verification failed.");
     }
   };
 
@@ -368,11 +393,11 @@ const EmailVerification = () => {
                 display: "flex",
                 flexDirection: "column",
                 width: { xs: "100%", sm: "80%", md: "550px" },
-                maxWidth: { xs: "280px", sm: "none" }, // mobile max width
+                maxWidth: { xs: "280px", sm: "none" },
                 gap: 2,
                 zIndex: 2,
-                p: { xs: 1.5, sm: 3 }, // mobile padding
-                mx: { xs: "auto", md: 0 }, // center form on mobile
+                p: { xs: 1.5, sm: 3 },
+                mx: { xs: "auto", md: 0 },
               }}
             >
               <Box
@@ -459,9 +484,9 @@ const EmailVerification = () => {
                 <Box
                   sx={{
                     display: "flex",
-                    gap: { xs: 1, sm: 2 }, // smaller gap on mobile
-                    justifyContent: "center", // center inputs on mobile
-                    flexWrap: "nowrap", // wrap if screen is too small
+                    gap: { xs: 1, sm: 2 },
+                    justifyContent: "center",
+                    flexWrap: "nowrap",
                   }}
                 >
                   {code.map((digit, index) => (
@@ -469,19 +494,20 @@ const EmailVerification = () => {
                       key={index}
                       inputRef={(el) => (inputRefs.current[index] = el)}
                       inputProps={{
-                        maxLength: 1,
+                        maxLength: 6,
                         style: {
                           textAlign: "center",
-                          fontSize: { xs: "18px", sm: "22px" }, // smaller font on mobile
+                          fontSize: { xs: "18px", sm: "22px" },
                           color: "white",
-                          padding: { xs: "6px 8px", sm: "8px 12px" }, // adjust padding for mobile
+                          padding: { xs: "6px 8px", sm: "8px 12px" },
                         },
                       }}
                       value={digit}
                       onChange={(e) => handleInputChange(e, index)}
                       onKeyDown={(e) => handleBackspace(e, index)}
+                      onPaste={handlePaste}
                       sx={{
-                        width: { xs: "40px", sm: "80px" }, // smaller width on mobile
+                        width: { xs: "40px", sm: "80px" },
                       }}
                     />
                   ))}
@@ -489,7 +515,6 @@ const EmailVerification = () => {
               </Box>
 
               <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                {/* Resend code */}
                 <Typography sx={{ color: "white", fontSize: "12px" }}>
                   <Box
                     component="span"
@@ -522,13 +547,20 @@ const EmailVerification = () => {
             bottom: { xs: -10, sm: -20 },
             right: { xs: "50%", sm: 20 },
             transform: { xs: "translateX(50%) scaleX(-1)", sm: "scaleX(-1)" },
-            width: { xs: 0, sm: 280, md: 380, lg: 430 }, // hidden on mobile
-            opacity: { xs: 0, sm: 1 }, // hidden on mobile
+            width: { xs: 0, sm: 280, md: 380, lg: 430 },
+            opacity: { xs: 0, sm: 1 },
             objectFit: "contain",
             zIndex: 1,
           }}
         />
       </Box>
+
+      <AppDialog
+        open={dialog.open}
+        onClose={closeDialog}
+        type={dialog.type}
+        message={dialog.message}
+      />
     </>
   );
 };

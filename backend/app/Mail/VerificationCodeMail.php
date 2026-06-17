@@ -20,7 +20,7 @@ class VerificationCodeMail extends Mailable
     public function build()
     {
         return $this
-            ->subject('Your Password Reset Code')
-            ->markdown('emails.verification_code');
+            ->subject('Your Gameverse Password Reset Code')
+            ->view('emails.verification_code');
     }
 }
