@@ -15,6 +15,7 @@ import axios from "axios";
 import backIcon from "../assets/back-icon.png";
 import { API_BASE_URL } from "../apiConfig";
 import AppDialog from "../components/AppDialog";
+import { useLoading } from "../context/LoadingContext";
 
 // -------- Frame with MOBILE ONLY adjustments --------
 const Frame = styled(Box)(({ theme }) => ({
@@ -108,6 +109,7 @@ const boldPath = `
 
 const ResetPassword = () => {
   const navigate = useNavigate();
+  const { setLoading } = useLoading();
   const [formData, setFormData] = useState({
     password: "",
     confirmPassword: "",
@@ -144,6 +146,7 @@ const ResetPassword = () => {
       return;
     }
 
+    setLoading(true);
     try {
       const res = await axios.post(`${API_BASE_URL}/api/reset-password`, {
         email,
@@ -160,6 +163,8 @@ const ResetPassword = () => {
       showDialog("success", "Your password has been reset successfully!", true);
     } catch (err) {
       showDialog("error", err.response?.data?.message || "Reset failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 

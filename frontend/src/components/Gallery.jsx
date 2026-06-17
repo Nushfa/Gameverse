@@ -7,8 +7,10 @@ import {
   GlobalStyles,
 } from "@mui/material";
 import { API_BASE_URL } from "../apiConfig";
+import { useLoading } from "../context/LoadingContext";
 
 const GalleryView = () => {
+  const { setLoading } = useLoading();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const scrollRef = useRef(null);
@@ -26,10 +28,19 @@ const GalleryView = () => {
   });
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/galleries`)
-      .then((res) => res.json())
-      .then((data) => setGalleryImages(data))
-      .catch(console.error);
+    const fetchGallery = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/galleries`);
+        const data = await res.json();
+        setGalleryImages(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchGallery();
   }, []);
 
   const imageCardStyle = {

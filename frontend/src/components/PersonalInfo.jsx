@@ -14,6 +14,7 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { API_BASE_URL } from "../apiConfig";
 import AppDialog from "./AppDialog";
+import { useLoading as useGlobalLoading } from "../context/LoadingContext";
 
 const fieldLabelStyles = {
   color: "#9CA3AF",
@@ -64,6 +65,7 @@ export const textFieldStyles = {
 /* COMPONENT */
 
 export default function PersonalInfo() {
+  const { setLoading: setGlobalLoading } = useGlobalLoading();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(false);
@@ -85,9 +87,10 @@ export default function PersonalInfo() {
   /* ---------- Fetch Logged-in User ---------- */
   useEffect(() => {
     const fetchUser = async () => {
+      setGlobalLoading(true);
       try {
         const token = localStorage.getItem("authToken");
-        if (!token) return setLoading(false);
+        if (!token) { setLoading(false); setGlobalLoading(false); return; }
 
         // 1️⃣ Fetch logged-in user
         const res = await axios.get(`${API_BASE_URL}/api/me`, {
@@ -144,6 +147,7 @@ export default function PersonalInfo() {
         setError(true);
       } finally {
         setLoading(false);
+        setGlobalLoading(false);
       }
     };
 
@@ -151,6 +155,7 @@ export default function PersonalInfo() {
   }, []);
   /* ---------- Update Profile ---------- */
   const handleUpdate = async () => {
+    setGlobalLoading(true);
     try {
       setSaving(true);
       const token = localStorage.getItem("authToken");
@@ -187,6 +192,7 @@ export default function PersonalInfo() {
       showDialog("error", "Failed to update profile.");
     } finally {
       setSaving(false);
+      setGlobalLoading(false);
     }
   };
 

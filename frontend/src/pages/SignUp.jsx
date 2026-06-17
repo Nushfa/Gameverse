@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_BASE_URL } from "../apiConfig";
 import AppDialog from "../components/AppDialog";
+import { useLoading } from "../context/LoadingContext";
 
 const Frame = styled(Box)(({ theme }) => ({
   maxWidth: "900px",
@@ -120,6 +121,7 @@ const SingUp = () => {
     if (shouldNav) navigate("/sign-in");
   };
   const navigate = useNavigate();
+  const { setLoading } = useLoading();
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -159,7 +161,6 @@ const SingUp = () => {
   };
 
   const handleSubmit = async () => {
-    // Validate password
     const passwordError = validatePassword(formData.password);
     if (passwordError) {
       showDialog("error", passwordError);
@@ -171,6 +172,7 @@ const SingUp = () => {
       return;
     }
 
+    setLoading(true);
     try {
       await axios.post(`${API_BASE_URL}/api/register`, {
         firstName: formData.firstName,
@@ -198,6 +200,8 @@ const SingUp = () => {
       } else {
         showDialog("error", err.response?.data?.message || "Registration failed!");
       }
+    } finally {
+      setLoading(false);
     }
   };
 

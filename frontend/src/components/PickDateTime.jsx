@@ -4,8 +4,10 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import axios from "axios";
 import { API_BASE_URL } from "../apiConfig";
+import { useLoading } from "../context/LoadingContext";
 
 const PickDateTime = ({ onNext, selectedStation, selectedDateTime }) => {
+  const { setLoading } = useLoading();
   const currentDate = new Date();
   const [currentMonth, setCurrentMonth] = useState(currentDate.getMonth());
   const [currentYear, setCurrentYear] = useState(currentDate.getFullYear());
@@ -92,6 +94,7 @@ const PickDateTime = ({ onNext, selectedStation, selectedDateTime }) => {
     if (!selectedStation || !selectedDate) return;
 
     const fetchBookings = async () => {
+      setLoading(true);
       try {
         const res = await axios.get(`${API_BASE_URL}/api/bookings-count`, {
           params: {
@@ -105,6 +108,8 @@ const PickDateTime = ({ onNext, selectedStation, selectedDateTime }) => {
         }
       } catch (err) {
         console.error("Failed to fetch booking counts", err);
+      } finally {
+        setLoading(false);
       }
     };
 

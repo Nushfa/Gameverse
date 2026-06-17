@@ -12,8 +12,10 @@ import astronaut from "../assets/astronaut.png";
 import BookingSection from "../components/BookingSection";
 import { API_BASE_URL } from "../apiConfig";
 import AppDialog from "../components/AppDialog";
+import { useLoading } from "../context/LoadingContext";
 
 const Contact = () => {
+  const { setLoading } = useLoading();
   const [formData, setFormData] = React.useState({
     first_name: "",
     last_name: "",
@@ -32,6 +34,7 @@ const Contact = () => {
 
   //Submit function
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       const res = await axios.post(`${API_BASE_URL}/api/contact`, formData);
       showDialog("success", res.data.message);
@@ -45,6 +48,8 @@ const Contact = () => {
     } catch (error) {
       console.error(error.response?.data || error.message);
       showDialog("error", "Failed to send message. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 

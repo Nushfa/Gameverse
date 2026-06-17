@@ -18,9 +18,11 @@ import { games } from "./FeaturedGames";
 import axios from "axios";
 import { API_BASE_URL } from "../apiConfig";
 import AppDialog from "./AppDialog";
+import { useLoading } from "../context/LoadingContext";
 
 export default function FeaturedGames() {
   const navigate = useNavigate();
+  const { setLoading } = useLoading();
   const scrollRef = useRef(null);
   const autoPlayIntervalRef = useRef(null);
 
@@ -40,6 +42,7 @@ export default function FeaturedGames() {
 
   useEffect(() => {
     const fetchStations = async () => {
+      setLoading(true);
       try {
         const res = await axios.get(`${API_BASE_URL}/api/stations`);
         if (res.data.status === "success") {
@@ -47,6 +50,8 @@ export default function FeaturedGames() {
         }
       } catch (err) {
         console.error("Failed to fetch stations", err);
+      } finally {
+        setLoading(false);
       }
     };
 

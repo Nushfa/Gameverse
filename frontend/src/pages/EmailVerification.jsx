@@ -7,6 +7,7 @@ import axios from "axios";
 import backIcon from "../assets/back-icon.png";
 import { API_BASE_URL } from "../apiConfig";
 import AppDialog from "../components/AppDialog";
+import { useLoading } from "../context/LoadingContext";
 
 const Frame = styled(Box)(({ theme }) => ({
   maxWidth: "900px",
@@ -108,6 +109,7 @@ const boldPath = `
 const EmailVerification = () => {
   const [codeSent, setCodeSent] = useState(false);
   const [dialog, setDialog] = useState({ open: false, type: "success", message: "", navigateOnClose: false });
+  const { setLoading } = useLoading();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -182,16 +184,17 @@ const EmailVerification = () => {
       showDialog("error", "Please enter your email.");
       return;
     }
+    setLoading(true);
     try {
-      await axios.post(`${API_BASE_URL}/api/send-verification-code`, {
-        email,
-      });
+      await axios.post(`${API_BASE_URL}/api/send-verification-code`, { email });
       showDialog("success", "Verification code sent! Check your email.");
       setCodeSent(true);
       setCode(Array(6).fill(""));
       inputRefs.current[0]?.focus();
     } catch (error) {
       showDialog("error", error.response?.data?.message || "Failed to send verification code.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -207,19 +210,20 @@ const EmailVerification = () => {
       return;
     }
 
+    setLoading(true);
     try {
       const res = await axios.post(`${API_BASE_URL}/api/verify-code`, {
         email,
         code: verificationCode,
       });
       const resetToken = res.data.reset_token;
-
       sessionStorage.setItem("reset_token", resetToken);
       sessionStorage.setItem("reset_email", email);
-
       showDialog("success", "Email verified.", true);
     } catch (error) {
       showDialog("error", error.response?.data?.message || "Verification failed.");
+    } finally {
+      setLoading(false);
     }
   };
 

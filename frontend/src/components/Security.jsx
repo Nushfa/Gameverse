@@ -12,8 +12,10 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { API_BASE_URL } from "../apiConfig";
 import AppDialog from "./AppDialog";
+import { useLoading } from "../context/LoadingContext";
 
 export default function Security() {
+  const { setLoading } = useLoading();
   const [showPassword, setShowPassword] = useState({
     current: false,
     new: false,
@@ -62,6 +64,7 @@ export default function Security() {
       return;
     }
 
+    setLoading(true);
     try {
       await axios.put(
         `${API_BASE_URL}/api/change-password`,
@@ -86,6 +89,8 @@ export default function Security() {
     } catch (error) {
       console.error(error);
       showDialog("error", error.response?.data?.message || "Password update failed.");
+    } finally {
+      setLoading(false);
     }
   };
 

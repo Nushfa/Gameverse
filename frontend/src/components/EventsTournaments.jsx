@@ -2,8 +2,10 @@ import React, { useEffect, useState, useRef } from "react";
 import { Box, Typography, Button, useMediaQuery, useTheme } from "@mui/material";
 import axios from "axios";
 import { API_BASE_URL } from "../apiConfig";
+import { useLoading } from "../context/LoadingContext";
 
 const EventsTournaments = () => {
+  const { setLoading } = useLoading();
   const [tournaments, setTournaments] = useState([]);
   const scrollContainerRef = useRef(null);
   const [isAutoPlaying, setIsAutoPlaying] = useState(false);
@@ -11,21 +13,24 @@ const EventsTournaments = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
-    axios
-      .get(`${API_BASE_URL}/api/events`)
-      .then((response) => {
+    const fetchEvents = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/events`);
         const eventsWithTimer = response.data
           .sort((a, b) => b.id - a.id)
           .map((event) => ({
             ...event,
             timeLeft: calculateTimeLeft(event.date),
           }));
-
         setTournaments(eventsWithTimer);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching events:", error);
-      });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvents();
   }, []);
 
   // Timer logic

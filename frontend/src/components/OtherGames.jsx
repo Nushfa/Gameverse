@@ -2,8 +2,10 @@ import React, { useRef, useEffect, useState, useMemo } from "react";
 import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
 import axios from "axios";
 import { API_BASE_URL } from "../apiConfig";
+import { useLoading } from "../context/LoadingContext";
 
 const OtherGames = () => {
+  const { setLoading } = useLoading();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const scrollRef = useRef(null);
@@ -12,6 +14,7 @@ const OtherGames = () => {
 
   useEffect(() => {
     const fetchGames = async () => {
+      setLoading(true);
       try {
         const res = await axios.get(`${API_BASE_URL}/api/games`);
         if (res.data.status === "success") {
@@ -19,6 +22,8 @@ const OtherGames = () => {
         }
       } catch (err) {
         console.error("Failed to fetch games", err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchGames();

@@ -6,8 +6,10 @@ import { API_BASE_URL } from "../apiConfig";
 import RedeemIcon from "@mui/icons-material/Redeem";
 import Pagination from "@mui/material/Pagination";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { useLoading } from "../context/LoadingContext";
 
 export default function GiftsRewards() {
+  const { setLoading } = useLoading();
   const [nfcUser, setNfcUser] = useState(null);
   const token = localStorage.getItem("authToken");
 
@@ -17,6 +19,7 @@ export default function GiftsRewards() {
 
   useEffect(() => {
     const fetchUserAndNfc = async () => {
+      setLoading(true);
       try {
         // 1. Get logged user
         const res = await axios.get(`${API_BASE_URL}/api/me`, {
@@ -42,6 +45,8 @@ export default function GiftsRewards() {
       } catch (err) {
         console.error("Error fetching user/NFC:", err);
         setNfcUser(null);
+      } finally {
+        setLoading(false);
       }
     };
 

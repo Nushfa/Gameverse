@@ -13,6 +13,7 @@ import { styled } from "@mui/system";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../apiConfig";
+import { useLoading } from "../context/LoadingContext";
 
 // Gradient text for headings
 const GradientText = styled(Typography)({
@@ -138,6 +139,7 @@ const CountdownBox = styled(Box)(({ theme }) => ({
 }));
 
 const EventsSection = () => {
+  const { setLoading } = useLoading();
   const [tournaments, setTournaments] = useState([]);
   const scrollContainerRef = useRef(null);
   const [isAutoPlaying, setIsAutoPlaying] = useState(false);
@@ -146,9 +148,10 @@ const EventsSection = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get(`${API_BASE_URL}/api/events`)
-      .then((response) => {
+    const fetchEvents = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/events`);
         const sortedEvents = response.data.sort((a, b) => b.id - a.id);
         const recentThreeEvents = sortedEvents.slice(0, 3);
         const eventsWithTimer = recentThreeEvents
@@ -157,12 +160,14 @@ const EventsSection = () => {
             ...event,
             timeLeft: calculateTimeLeft(event.date),
           }));
-
         setTournaments(eventsWithTimer);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching events:", error);
-      });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvents();
   }, []);
 
   // Timer

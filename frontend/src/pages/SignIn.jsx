@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_BASE_URL } from "../apiConfig";
 import AppDialog from "../components/AppDialog";
+import { useLoading } from "../context/LoadingContext";
 
 /* ------------------------ FRAME BACKGROUND ------------------------ */
 
@@ -132,6 +133,7 @@ const SignIn = () => {
     if (shouldNav) navigate("/");
   };
   const navigate = useNavigate();
+  const { setLoading } = useLoading();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -146,6 +148,7 @@ const SignIn = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const res = await axios.post(`${API_BASE_URL}/api/login`, {
         email: formData.email,
@@ -168,6 +171,8 @@ const SignIn = () => {
     } catch (err) {
       console.error("Login error:", err.response?.data || err.message);
       showDialog("error", err.response?.data?.message || "Login failed!");
+    } finally {
+      setLoading(false);
     }
   };
 

@@ -14,6 +14,8 @@ import { ToastContainer } from "react-toastify";
 import Privacy from "./pages/Privacy.jsx";
 import Terms from "./pages/Terms.jsx";
 import Refund from "./pages/Refund.jsx";
+import { LoadingProvider } from "./context/LoadingContext";
+import LoadingOverlay from "./components/LoadingOverlay";
 
 function MainLayout() {
   return (
@@ -31,6 +33,8 @@ function SubLayout() {
 
 function App() {
   return (
+    <LoadingProvider>
+    <LoadingOverlay />
     <div
       style={{
         width: "100%",
@@ -80,6 +84,7 @@ function App() {
         />
       </div>
     </div>
+    </LoadingProvider>
   );
 }
 
