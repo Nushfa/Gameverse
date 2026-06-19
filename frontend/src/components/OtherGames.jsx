@@ -27,7 +27,7 @@ const OtherGames = () => {
       }
     };
     fetchGames();
-  }, []);
+  }, [setLoading]);
 
   const gamesMap = useMemo(() => {
     const map = {};

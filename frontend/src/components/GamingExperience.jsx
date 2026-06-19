@@ -224,23 +224,14 @@ export default function GamingExperience() {
           {isMobile ? (
             <Box
               sx={{
-                display: "flex",
-                flexWrap: "wrap",
-                justifyContent: "center",
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
                 gap: 1.5,
                 mb: 2,
               }}
             >
               {mobileFeatures.map((feature, i) => (
-                <Box
-                  key={i}
-                  sx={{
-                    width: "calc(33.33% - 8px)",
-                    minWidth: "100px",
-                  }}
-                >
-                  <FeatureCard feature={feature} />
-                </Box>
+                <FeatureCard key={i} feature={feature} />
               ))}
             </Box>
           ) : (

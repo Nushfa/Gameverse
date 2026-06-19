@@ -57,7 +57,7 @@ const Booking = () => {
       }
     };
     fetchStations();
-  }, []);
+  }, [setLoading]);
 
   const filteredStations = stationType
     ? stations.filter((s) => s.type === stationType)

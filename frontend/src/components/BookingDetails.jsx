@@ -29,7 +29,7 @@ export default function BookingDetails() {
     };
 
     fetchBookings();
-  }, [token]);
+  }, [token, setLoading]);
 
 
   return (

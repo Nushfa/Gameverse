@@ -67,12 +67,12 @@ const SelectStation = ({ onNext, selectedStation, stations = [] }) => {
   }, [calcSnaps]);
 
   // Scroll to snap position
-  const scrollToSnap = (snapIndex) => {
+  const scrollToSnap = useCallback((snapIndex) => {
     const container = scrollRef.current;
     if (!container || snaps.length === 0) return;
     const left = snaps[snapIndex] || 0;
     container.scrollTo({ left, behavior: "smooth" });
-  };
+  }, [snaps]);
 
   const handleDotClick = (dotIdx) => {
     scrollToSnap(dotIdx);
@@ -190,15 +190,7 @@ const SelectStation = ({ onNext, selectedStation, stations = [] }) => {
         clearInterval(autoPlayIntervalRef.current);
       }
     };
-  }, [isAutoPlaying, snaps, dotsToShow]);
-
-  const PS5_FALLBACK_IMAGES = {
-    "PS5 Station 1": "/Images/f1.jpg",
-    "PS5 Station 2": "/Images/f2.jpg",
-    "PS5 Station 3": "/Images/f3.jpg",
-    "PS5 Station 4": "/Images/f4.jpg",
-    "PS5 Station 5": "/Images/f5.jpg",
-  };
+  }, [isAutoPlaying, snaps, dotsToShow, scrollToSnap]);
 
   const getStationImage = (station) => {
     if (station.thumbnail_url) return station.thumbnail_url;

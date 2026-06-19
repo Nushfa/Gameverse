@@ -152,7 +152,7 @@ export default function PersonalInfo() {
     };
 
     fetchUser();
-  }, []);
+  }, [setGlobalLoading]);
   /* ---------- Update Profile ---------- */
   const handleUpdate = async () => {
     setGlobalLoading(true);

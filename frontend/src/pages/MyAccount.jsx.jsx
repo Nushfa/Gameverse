@@ -1,7 +1,6 @@
 import { Box } from "@mui/material";
 import { useState } from "react";
 import BookingDetails from "../components/BookingDetails";
-import PaymentMethods from "../components/PaymentMethods";
 import PersonalInfo from "../components/PersonalInfo";
 import ProfileSidebar from "../components/ProfileSidebar";
 import Security from "../components/Security";

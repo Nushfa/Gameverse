@@ -9,7 +9,6 @@ import EventsSection from "../components/EventsSection";
 import AboutGameVerse from "../components/AboutGameVerse";
 import GalleryView from "../components/Gallery";
 import BookingSection from "../components/BookingSection";
-import { useTheme, useMediaQuery } from "@mui/material";
 
 const SolidGradientButton = styled(Button)(({ theme }) => ({
   position: "relative",
@@ -95,9 +94,6 @@ const OutlineGradientButton = styled(Button)(({ theme }) => ({
 
 const Home = () => {
   const location = useLocation();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // mobile = sm and below
-
   useEffect(() => {
     if (location?.state?.scrollToFeatured) {
       const el = document.getElementById("featured-games");

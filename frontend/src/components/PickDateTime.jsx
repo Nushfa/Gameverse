@@ -114,7 +114,7 @@ const PickDateTime = ({ onNext, selectedStation, selectedDateTime }) => {
     };
 
     fetchBookings();
-  }, [selectedStation, selectedDate]);
+  }, [selectedStation, selectedDate, setLoading]);
 
   const convertDurationToMinutes = (duration) => {
     if (!duration) return 0;
@@ -257,7 +257,7 @@ const PickDateTime = ({ onNext, selectedStation, selectedDateTime }) => {
         durationMinutes: convertDurationToMinutes(selectedDuration),
       });
     }
-  }, [selectedDate, selectedTime, selectedDuration]);
+  }, [selectedDate, selectedTime, selectedDuration, onNext]);
 
   return (
     <Box

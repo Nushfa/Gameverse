@@ -168,7 +168,7 @@ const EventsSection = () => {
       }
     };
     fetchEvents();
-  }, []);
+  }, [setLoading]);
 
   // Timer
   useEffect(() => {

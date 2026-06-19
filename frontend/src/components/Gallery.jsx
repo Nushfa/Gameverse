@@ -41,7 +41,7 @@ const GalleryView = () => {
       }
     };
     fetchGallery();
-  }, []);
+  }, [setLoading]);
 
   const imageCardStyle = {
     flexShrink: 0,

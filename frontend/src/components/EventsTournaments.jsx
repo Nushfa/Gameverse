@@ -31,7 +31,7 @@ const EventsTournaments = () => {
       }
     };
     fetchEvents();
-  }, []);
+  }, [setLoading]);
 
   // Timer logic
   useEffect(() => {

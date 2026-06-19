@@ -51,7 +51,7 @@ export default function GiftsRewards() {
     };
 
     if (token) fetchUserAndNfc();
-  }, [token]);
+  }, [token, setLoading]);
 
   const sortedRewards = [...(nfcUser?.used_rewards || [])].sort(
     (a, b) => new Date(b.used_at) - new Date(a.used_at),

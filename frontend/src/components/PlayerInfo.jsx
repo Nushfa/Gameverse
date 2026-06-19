@@ -9,14 +9,11 @@ import {
   FormControlLabel,
   Dialog,
   IconButton,
-  Checkbox,
-  InputAdornment,
   FormControl,
   Select,
   MenuItem,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import LockIcon from "@mui/icons-material/Lock";
 import { API_BASE_URL } from "../apiConfig";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -797,58 +794,5 @@ const mainInputStyle = {
     cursor: "text",
   },
 };
-
-// Helper Component for Radio Button visual
-const CustomRadioOption = ({ value, label, currentValue, onClick }) => (
-  <Box
-    sx={{
-      flex: 1,
-      bgcolor:
-        currentValue === value
-          ? "rgba(51, 178, 247, 0.1)"
-          : "rgba(255,255,255,0.05)",
-      border:
-        currentValue === value
-          ? "1px solid #33B2F7"
-          : "1px solid rgba(255,255,255,0.1)",
-      borderRadius: "4px",
-      display: "flex",
-      alignItems: "center",
-      cursor: "pointer",
-      transition: "all 0.3s ease",
-      py: { xs: 0.5, sm: 1 },
-      "&:hover": {
-        bgcolor: "rgba(51, 178, 247, 0.08)",
-        borderColor: "rgba(51, 178, 247, 0.5)",
-      },
-    }}
-    onClick={onClick}
-  >
-    <FormControlLabel
-      value={value}
-      control={
-        <Radio
-          size="small"
-          sx={{
-            color: "rgba(255,255,255,0.3)",
-            "&.Mui-checked": { color: "#33B2F7" },
-            "& .MuiSvgIcon-root": { fontSize: { xs: 16, sm: 24 } },
-          }}
-        />
-      }
-      label={label}
-      sx={{
-        color: "white",
-        width: "100%",
-        m: 0,
-        ml: { xs: 0.5, sm: 1 },
-        pointerEvents: "none",
-        "& .MuiFormControlLabel-label": {
-          fontSize: { xs: "12px", sm: "14px" },
-        },
-      }}
-    />
-  </Box>
-);
 
 export default PlayerInfo;

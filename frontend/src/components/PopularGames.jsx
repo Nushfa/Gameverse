@@ -11,7 +11,6 @@ import {
   Button,
   GlobalStyles,
   useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { games } from "./FeaturedGames";
@@ -27,7 +26,7 @@ export default function FeaturedGames() {
   const autoPlayIntervalRef = useRef(null);
 
   const [snaps, setSnaps] = useState([]);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [, setSelectedIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(false);
   const [dialog, setDialog] = useState({ open: false, type: "error", message: "" });
   const showDialog = (type, message) => setDialog({ open: true, type, message });
@@ -56,7 +55,7 @@ export default function FeaturedGames() {
     };
 
     fetchStations();
-  }, []);
+  }, [setLoading]);
 
   const commonThumbnailMap = useMemo(() => {
     const map = {};
